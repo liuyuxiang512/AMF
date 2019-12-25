@@ -8,4 +8,4 @@ We propose an efficient way for semantic learning from 3D data, based on <a href
 ## Usage
 Check <a href="https://github.com/liuyuxiang512/AMF/tree/master/training_settings" target="_blank">training settings</a> for example usage of the field probing layers.
 
-Refer to <a href="" target="_blank">install instructions</a> for installing and running of the codes.
+Refer to <a href="https://github.com/liuyuxiang512/AMF/blob/master/instructions.txt" target="_blank">instructions</a> for installing and running of the codes.
