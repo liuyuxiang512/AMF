@@ -1,0 +1,124 @@
+###########################################################################################################################
+(outside container) # install docker
+(outside container) # install nvidia-docker
+###########################################################################################################################
+(outside container) nvidia-docker run -it bvlc/caffe:gpu
+-->Ubuntu-16.04, Linux-4.4.0-21-generic, cuda 8.0, gcc 5.4.0, python 2.7.12, boost 1.58.0, cmake 3.5.1, openCV 2.4.9.1 have been included in this image
+###########################################################################################################################
+apt-get update
+apt-get install git
+apt-get install vim
+apt-get install unzip
+apt-get install bison
+apt-get install flex
+apt-get install libgmp-dev
+apt-get install libmpfr-dev
+apt-get install libopenni2-dev
+###########################################################################################################################
+vim /root/.bashrc
+export LD_LIBRARY_PATH="/usr/local/lib64:/usr/local/lib:$LD_LIBRARY_PATH"
+export OPENTHREADS_INC_DIR="/usr/local/include"
+export OPENTHREADS_LIB_DIR="/usr/local/lib64:/usr/local/lib"
+export PATH="$OPENTHREADS_LIB_DIR:$PATH"
+source /root/.bashrc
+###########################################################################################################################
+=>install vtk
+apt-get install python-vtk
+ln -s /usr/lib/python2.7/dist-packages/vtk/libvtkRenderingPythonTkWidgets.x86_64-linux-gnu.so /usr/lib/x86_64-linux-gnu/libvtkRenderingPythonTkWidgets.so
+###########################################################################################################################
+=>install PCL using ppa
+apt-get install software-properties-common
+add-apt-repository ppa:v-launchpad-jochen-sprickerhof-de/pcl
+apt-get update
+apt-get install libpcl-dev
+###########################################################################################################################
+=>install CGAL-4.7 with CGAL-4.7.tar.gz
+cp CGAL-4.7.tar.gz /opt
+cd /opt
+tar -xzvf CGAL-4.7.tar.gz
+cd CGAL-4.7
+mkdir build
+cd build
+cmake ..
+make
+make install
+ldconfig
+###########################################################################################################################
+=>install OpenSceneGraph-Data from github
+cd /opt
+git clone https://github.com/openscenegraph/OpenSceneGraph-Data.git
+vim /root/.bashrc
+export OSG_FILE_PATH="/opt/OpenSceneGraph-Data:/opt/OpenSceneGraph-Data/Image"
+source /root/.bashrc
+###########################################################################################################################
+=>install OSG 3.4.1 with OpenSceneGraph-OpenSceneGraph-3.4.1.zip
+cp OpenSceneGraph-OpenSceneGraph-3.4.1.zip /opt
+cd /opt
+unzip OpenSceneGraph-OpenSceneGraph-3.4.1.zip
+cd OpenSceneGraph-OpenSceneGraph-3.4.1
+mkdir build
+cd build
+cmake ..
+make install_ld_conf
+make
+make install
+ldconfig
+###########################################################################################################################
+=>install field_generators in FPNN from github
+cd /opt
+git clone https://github.com/yangyanli/FPNN.git
+cd FPNN/field_generators
+mkdir build
+cd build
+cmake ..
+make
+# make install
+ldconfig
+vim /root/.bashrc
+export LD_LIBRARY_PATH="/opt/FPNN/field_generators/build/lib:$LD_LIBRARY_PATH"
+export PATH="/opt/FPNN/field_generators/build/bin:$PATH"
+source /root/.bashrc
+###########################################################################################################################
+Error: Unable to open display ":0.0".
+A Unable to open display "202.121.182.216:11.0"
+Viewer::realize() - failed to set up any windows
+-->not work
+docker run -it --rm -e DISPLAY=$DISPLAY --name 'CG-new2' -v /tmp/.X11-unix:/tmp/.X11-unix /bin/bash
+docker run -ti --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix 
+nvidia-docker run -it --rm -e DISPLAY=$DISPLAY --name 'CG-new4' -v /tmp/.X11-unix:/tmp/.X11-unix 56cee78857f2 /bin/bash
+docker run -d -v /etc/localtime:/etc/localtime:ro -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY -e GDK_SCALE -e GDK_DPI_SCALE --name 'CG-new4' 56cee78857f2
+###########################################################################################################################
+Error: field_generators: /usr/include/pcl-1.7/pcl/search/impl/flann_search.hpp:102: int pcl::search::FlannSearch<PointT, FlannDistance>::nearestKSearch(const PointT&, int, std::vector<int, std::allocator<int> >&, std::vector<float>&) const [with PointT = pcl::PointXYZRGBNormal; FlannDistance = flann::L2_Simple<float>]: Assertion `point_representation_->isValid (point) && "Invalid (NaN, Inf) point coordinates given to nearestKSearch!"' failed.
+Aborted (core dumped)
+-->command_line.cpp:104  'point_cloud->voxelGridFilter(grid_size/2, true);' -> true to false works
+###########################################################################################################################
+=>install caffe with caffe-a811c94fe4a27d6425d058e2399903890ce8ca4a.zip from github
+mv /opt/caffe /opt/caffe-bak  # disable original caffe
+mv caffe-a811c94fe4a27d6425d058e2399903890ce8ca4a.zip /opt/FPNN/backends/caffe.zip
+cd /opt/FPNN/backends
+unzip caffe.zip
+cd caffe
+-->https://blog.csdn.net/yhaolpz/article/details/71375762
+-->https://github.com/rohitgirdhar/GenerativePredictableVoxels/issues/1
+vim /root/.bashrc
+export PYTHONPATH="/opt/FPNN/backends/caffe/python:$PYTHONPATH"
+export CAFFE_HOME="/opt/FPNN/backends/caffe"
+source /root/.bashrc
+# apt-get install initramfs-tools
+# apt-get install build-essential libgl1-mesa-dev
+# apt-get install freeglut3-dev
+# apt-get install libglew-dev libsdl2-dev libsdl2-image-dev libglm-dev libfreetype6-dev
+# pip install numpy
+# pip install -U scikit-image
+###########################################################################################################################
+python /opt/FPNN/field_generators/python/generate_filelist_modelnet.py --root_folder /opt/FPNN/dataset/ModelNet40 --output_dir /opt/FPNN/dataset/ModelNet40_Analysis/
+python /opt/FPNN/field_generators/python/generate_df_list.py --root_folder /opt/FPNN/dataset/ModelNet40 --filelist /opt/FPNN/dataset/ModelNet40_Analysis/filelist_train.txt --output_folder /home/ --resolution 64
+python /opt/FPNN/field_generators/python/generate_df_list.py --root_folder /opt/FPNN/dataset/ModelNet40 --filelist /opt/FPNN/dataset/ModelNet40_Analysis/filelist_test.txt --output_folder /home/ --resolution 64
+field_generators -df_list /home/df_64_list_train.txt -skip_generation true
+field_generators -df_list /home/df_64_list_test.txt -skip_generation true
+python  /home/field_generators/python/convert_hdf5_to_lmdb.py --filelist /opt/FPNN/dataset/ModelNet40_Analysis/filelist_train.txt --df_list  /home/df_64_list_train.txt --lmdb_folder  /home/lmdb_64_train --caffe_path /opt/FPNN/backends/caffe/ --save_float
+python  /home/field_generators/python/split_lmdb.py --lmdb_folder  /home/lmdb_64_train --caffe_path /opt/FPNN/backends/caffe/
+python  /home/field_generators/python/convert_hdf5_to_lmdb.py --filelist /opt/FPNN/dataset/ModelNet40_Analysis/filelist_test.txt --df_list  /home/df_64_list_test.txt --lmdb_folder  /home/lmdb_64_test --caffe_path /opt/FPNN/backends/caffe/ --save_float
+python  /home/field_generators/python/split_lmdb.py --lmdb_folder  /home/lmdb_64_test --caffe_path /opt/FPNN/backends/caffe/
+###########################################################################################################################
+
